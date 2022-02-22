@@ -75,14 +75,15 @@ export default function InitialGuess() {
       case 2: curWord = word3; template=TL[bs[10]] + TL[bs[11]] + TL[bs[12]] + TL[bs[13]] + TL[bs[14]]; break;
     }
 
-    console.log(turnCounter, curWord, curWord.length);
     if (curWord.length === 5) {
+      console.log("Posting:", curWord, template);
       const data = JSON.stringify({
         template: template,
-        guess: word,
+        guess: curWord,
         answers_left: answersLeft,
         allowed_left: allowedLeft,
       });
+      
       // 'https://damn-you-wordle-uykoh7fkza-uw.a.run.app/getword/'
       postRequest('http://localhost:8080/getword/', data)
         .then(result => {
@@ -118,11 +119,11 @@ export default function InitialGuess() {
           else var displayLetter:string = word3.substring(i%5, i%5+1);
 
           return (
-            <Box key={"box" + i} focusIndicator={false} gridArea={"box" + i} 
-                 background={COLORS[box]} onClick={() => { bs[i] = (box + 1) % 3; setBoxState({...bs})}}>
-              <Text alignSelf='center' margin='xxxsmall' size='2xl'>{displayLetter}</Text>
-            </Box>
-          )
+              <Box key={"box" + i} focusIndicator={false} gridArea={"box" + i} 
+                  background={COLORS[box]} onClick={() => { bs[i] = (box + 1) % 3; setBoxState({...bs})}}>
+                <Text alignSelf='center' margin='xxxsmall' size='2xl'>{displayLetter}</Text>
+              </Box>
+            )
           })
         }
       </Grid>

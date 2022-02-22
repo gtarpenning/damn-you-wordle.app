@@ -18,29 +18,31 @@ export default function WelcomeContainer() {
     >
       {!isClicked ? (
         <>
-          <Heading alignSelf="center" margin="medium">
+          <Heading alignSelf="center" margin="medium" >
             The Wordle Helper
           </Heading>
-          <Button
-            label=">"
-            size="small"
-            color="dark-2"
-            hoverIndicator
-            onClick={() => {
-              setClicked(true);
-            }}
-            tip={{
-              plain: true,
-              dropProps: {
-                overflow: { horizontal: "auto" },
-              },
-              content: (
-                <Text size="xsmall" weight="bold" margin="xsmall">
-                  this is cheating you know...
-                </Text>
-              ),
-            }}
-          ></Button>
+          <Box animation='pulse'>
+            <Button
+              label=">"
+              size="small"
+              color="dark-2"
+              hoverIndicator
+              onClick={() => {
+                setClicked(true);
+              }}
+              tip={{
+                plain: true,
+                dropProps: {
+                  overflow: { horizontal: "auto" },
+                },
+                content: (
+                  <Text size="xsmall" weight="bold" margin="xsmall">
+                    this is cheating you know...
+                  </Text>
+                ),
+              }}
+            ></Button>
+          </Box>
         </>
       ) : (
         <div>

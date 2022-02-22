@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextInput, Grid, Box, Button, Tag } from "grommet";
+import { Text, TextInput, Grid, Box, Button, Tag, List } from "grommet";
 
 
 const COLORS = ['#787c7e', '#c9b458', "#6aaa64"];
@@ -8,16 +8,14 @@ const TL = ['-', 'O', 'X'];
 
 export default function InitialGuess() {
   const [word, setWord] = React.useState("");
-  const [bestWord, setBestWord] = React.useState("");
-  const [sessionID, setSessionID] = React.useState("");
+  const [word2, setWord2] = React.useState("");
+  const [word3, setWord4] = React.useState("");
 
-  const [boxState, setBoxState] = React.useState({
-    box1: 0,
-    box2: 0,
-    box3: 0,
-    box4: 0,
-    box5: 0,
-  });
+  const [bestWord, setBestWord] = React.useState("");
+  const [answersLeft, setAnswersLeft] = React.useState([]);
+  const [allowedLeft, setAllowedLeft] = React.useState([]);
+
+  const [boxState, setBoxState] = React.useState(Array(15).fill(0));
 
   async function postRequest(url='', data='') {
     console.log("Posting:", data);
@@ -36,20 +34,21 @@ export default function InitialGuess() {
 
   const fetchWordle = () => {
     if (word.length === 5) {
-      const template = TL[boxState.box1] + TL[boxState.box2] + TL[boxState.box3] + TL[boxState.box4] + TL[boxState.box5]
+      const template = TL[boxState[0]] + TL[boxState[1]] + TL[boxState[2]] + TL[boxState[3]] + TL[boxState[4]];
 
       const data = JSON.stringify({
-        id: "",
-        sessionID: "",
         template: template,
         guess: word,
+        answers_left: answersLeft,
+        allowed_left: allowedLeft,
       });
 
       postRequest('http://localhost:8080/getword/', data)
         .then(result => {
           console.log(result);
-          setSessionID(result.sessionID); 
-          setBestWord(result['best_guesses'][0][0])
+          setAnswersLeft(result.answers_left); 
+          setAllowedLeft(result.allowed_left);
+          setBestWord(result.best_guess);
         })
         .catch((err) => console.log(err))
     } else {
@@ -57,8 +56,26 @@ export default function InitialGuess() {
     }
   }
 
+  const areaList = [
+    { name: 'box0', start: [0, 0], end: [1, 0] },
+    { name: 'box1', start: [1, 0], end: [2, 0] },
+    { name: 'box2', start: [2, 0], end: [3, 0] },
+    { name: 'box3', start: [3, 0], end: [4, 0] },
+    { name: 'box4', start: [4, 0], end: [4, 0] },
+    { name: 'box5', start: [0, 1], end: [1, 1] },
+    { name: 'box6', start: [1, 1], end: [2, 1] },
+    { name: 'box7', start: [2, 1], end: [3, 1] },
+    { name: 'box8', start: [3, 1], end: [4, 1] },
+    { name: 'box9', start: [4, 1], end: [4, 1] },
+    { name: 'box10', start: [0, 2], end: [1, 2] },
+    { name: 'box11', start: [1, 2], end: [2, 2] },
+    { name: 'box12', start: [2, 2], end: [3, 2] },
+    { name: 'box13', start: [3, 2], end: [4, 2] },
+    { name: 'box14', start: [4, 2], end: [4, 2] },
+  ]
+
   return (
-    <>
+    <Box width='medium' height='medium'>
       <Text margin="xsmall">Alright, what word did you guess first?</Text>
       <TextInput
         placeholder="type here"
@@ -70,41 +87,33 @@ export default function InitialGuess() {
           }
         }}
       />
-      <br />
       <Grid
         margin='medium'
-        alignSelf='end'
-        rows={['xxsmall', 'xxsmall']}
+        alignSelf='center'
+        rows={['xxsmall', 'xxsmall', 'xxsmall']}
         columns={['xxsmall', 'xxsmall', 'xxsmall', 'xxsmall', 'xxsmall']}
         gap="xsmall"
-        areas={[
-          { name: 'box1', start: [0, 0], end: [1, 0] },
-          { name: 'box2', start: [1, 0], end: [2, 0] },
-          { name: 'box3', start: [2, 0], end: [3, 0] },
-          { name: 'box4', start: [3, 0], end: [4, 0] },
-          { name: 'box5', start: [4, 0], end: [4, 0] },
-          { name: 'button', start: [0, 1], end: [4, 1]}
-        ]}
+        areas={areaList}
       >
-        <Box focusIndicator={false} gridArea="box1" background={COLORS[boxState.box1]} onClick={() => { boxState.box1 = (boxState.box1 + 1) % 3; setBoxState({...boxState})}}>
-          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(0, 1)}</Text>
-        </Box>
-        <Box focusIndicator={false} gridArea="box2" background={COLORS[boxState.box2]} onClick={() => { boxState.box2 = (boxState.box2 + 1) % 3; setBoxState({...boxState})}}>
-          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(1, 2)}</Text>
-        </Box>
-        <Box focusIndicator={false} gridArea="box3" background={COLORS[boxState.box3]} onClick={() => { boxState.box3 = (boxState.box3 + 1) % 3; setBoxState({...boxState})}}>
-          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(2, 3)}</Text>
-        </Box>
-        <Box focusIndicator={false} gridArea="box4" background={COLORS[boxState.box4]} onClick={() => { boxState.box4 = (boxState.box4 + 1) % 3; setBoxState({...boxState})}}>
-          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(3, 4)}</Text>
-        </Box>
-        <Box focusIndicator={false} gridArea="box5" background={COLORS[boxState.box5]} onClick={() => { boxState.box5 = (boxState.box5 + 1) % 3; setBoxState({...boxState})}}>
-          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(4, 5)}</Text>
-        </Box>
-        <Box animation='pulse' gridArea='button'>
-          <Button primary color='orange' label="Submit" alignSelf='center' onClick={fetchWordle}/>
-        </Box>
+        {Object.values(boxState).map((box, i) => {
+          let displayWord:string = word.substring(i, i+1);
+
+          if (5 < i && i < 10) {
+            displayWord = word2.substring(i%5, i%5+1);
+          } else {
+            displayWord = word3.substring(i%5, i%5+1);
+          }
+          return (
+            <Box key={"box" + i} focusIndicator={false} gridArea={"box" + i} background={COLORS[box]} onClick={() => { boxState[i] = (box + 1) % 3; setBoxState({...boxState})}}>
+              <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(i, i+1)}</Text>
+            </Box>
+          )
+          })
+        }
       </Grid>
+      <Box animation='pulse' gridArea='button'>
+        <Button primary color='orange' label="Submit" alignSelf='center' onClick={fetchWordle}/>
+      </Box>
       {bestWord !== "" ? (
         <Box>
           <Tag
@@ -117,6 +126,6 @@ export default function InitialGuess() {
           <div></div>
         )
       }
-    </>
+    </Box>
   );
 }

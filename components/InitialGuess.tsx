@@ -83,18 +83,21 @@ export default function InitialGuess() {
         answers_left: answersLeft,
         allowed_left: allowedLeft,
       });
-      
+
       // 'https://damn-you-wordle-uykoh7fkza-uw.a.run.app/getword/'
       postRequest('http://localhost:8080/getword/', data)
         .then(result => {
           console.log(result);
-          setAnswersLeft(result.answers_left); 
-          setAllowedLeft(result.allowed_left);
-          setBestWord(result.best_guess);
+          if (result.best_guess == "Word Not Found") {
+            console.log("Not an allowed input word...", bestWord);
+          } else {
+            setBestWord(result.best_guess);
+            setAnswersLeft(result.answers_left);
+            setAllowedLeft(result.allowed_left);
+            setTurnCounter(turnCounter + 1);
+          }
         })
         .catch((err) => console.log(err))
-      
-      setTurnCounter(turnCounter + 1);
     } else { 
       // TODO: Make this a state event 
     }

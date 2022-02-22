@@ -2,7 +2,7 @@ import React from "react";
 import { Text, TextInput, Grid, Box, Button, Tag } from "grommet";
 
 
-const COLORS = ['light-5', 'yellow', 'green'];
+const COLORS = ['#787c7e', '#c9b458', "#6aaa64"];
 const TL = ['-', 'O', 'X'];
 
 
@@ -70,11 +70,13 @@ export default function InitialGuess() {
           }
         }}
       />
-      <br></br>
+      <br />
       <Grid
+        margin='medium'
+        alignSelf='end'
         rows={['xxsmall', 'xxsmall']}
         columns={['xxsmall', 'xxsmall', 'xxsmall', 'xxsmall', 'xxsmall']}
-        gap="medium"
+        gap="xsmall"
         areas={[
           { name: 'box1', start: [0, 0], end: [1, 0] },
           { name: 'box2', start: [1, 0], end: [2, 0] },
@@ -84,13 +86,23 @@ export default function InitialGuess() {
           { name: 'button', start: [0, 1], end: [4, 1]}
         ]}
       >
-        <Box gridArea="box1" background={COLORS[boxState.box1]} onClick={() => { boxState.box1 = (boxState.box1 + 1) % 3; setBoxState({...boxState})}}/>
-        <Box gridArea="box2" background={COLORS[boxState.box2]} onClick={() => { boxState.box2 = (boxState.box2 + 1) % 3; setBoxState({...boxState})}}/>
-        <Box gridArea="box3" background={COLORS[boxState.box3]} onClick={() => { boxState.box3 = (boxState.box3 + 1) % 3; setBoxState({...boxState})}}/>
-        <Box gridArea="box4" background={COLORS[boxState.box4]} onClick={() => { boxState.box4 = (boxState.box4 + 1) % 3; setBoxState({...boxState})}}/>
-        <Box gridArea="box5" background={COLORS[boxState.box5]} onClick={() => { boxState.box5 = (boxState.box5 + 1) % 3; setBoxState({...boxState})}}/>
-        <Box gridArea='button'>
-          <Button primary label="Submit" alignSelf='center' onClick={fetchWordle}/>
+        <Box focusIndicator={false} gridArea="box1" background={COLORS[boxState.box1]} onClick={() => { boxState.box1 = (boxState.box1 + 1) % 3; setBoxState({...boxState})}}>
+          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(0, 1)}</Text>
+        </Box>
+        <Box focusIndicator={false} gridArea="box2" background={COLORS[boxState.box2]} onClick={() => { boxState.box2 = (boxState.box2 + 1) % 3; setBoxState({...boxState})}}>
+          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(1, 2)}</Text>
+        </Box>
+        <Box focusIndicator={false} gridArea="box3" background={COLORS[boxState.box3]} onClick={() => { boxState.box3 = (boxState.box3 + 1) % 3; setBoxState({...boxState})}}>
+          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(2, 3)}</Text>
+        </Box>
+        <Box focusIndicator={false} gridArea="box4" background={COLORS[boxState.box4]} onClick={() => { boxState.box4 = (boxState.box4 + 1) % 3; setBoxState({...boxState})}}>
+          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(3, 4)}</Text>
+        </Box>
+        <Box focusIndicator={false} gridArea="box5" background={COLORS[boxState.box5]} onClick={() => { boxState.box5 = (boxState.box5 + 1) % 3; setBoxState({...boxState})}}>
+          <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(4, 5)}</Text>
+        </Box>
+        <Box animation='pulse' gridArea='button'>
+          <Button primary color='orange' label="Submit" alignSelf='center' onClick={fetchWordle}/>
         </Box>
       </Grid>
       {bestWord !== "" ? (

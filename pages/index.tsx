@@ -32,7 +32,7 @@ const Home: NextPage = () => {
       </Box>
       <Footer background="light-3" justify="center" pad="small">
         <Text textAlign="center" size="small">
-          © 2022 Copyright Stanford
+          © 2022 Copyright Stanford jk
         </Text>
       </Footer>
     </Grommet>

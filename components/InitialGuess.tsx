@@ -9,40 +9,81 @@ const TL = ['-', 'O', 'X'];
 export default function InitialGuess() {
   const [word, setWord] = React.useState("");
   const [word2, setWord2] = React.useState("");
-  const [word3, setWord4] = React.useState("");
+  const [word3, setWord3] = React.useState("");
+  const [bs, setBoxState] = React.useState(Array(15).fill(0));
 
+  const [turnCounter, setTurnCounter] = React.useState(0);
   const [bestWord, setBestWord] = React.useState("");
   const [answersLeft, setAnswersLeft] = React.useState([]);
   const [allowedLeft, setAllowedLeft] = React.useState([]);
 
-  const [boxState, setBoxState] = React.useState(Array(15).fill(0));
-
   async function postRequest(url='', data='') {
-    console.log("Posting:", data);
-
     const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json'},
       body: data,
-      // mode: 'no-cors',
     })
-
     return res.json();
   }
 
-  const fetchWordle = () => {
-    if (word.length === 5) {
-      const template = TL[boxState[0]] + TL[boxState[1]] + TL[boxState[2]] + TL[boxState[3]] + TL[boxState[4]];
+  function TextInputBox() {
+    if (turnCounter == 0) return (
+        <>
+          <Text margin="xsmall">Alright, what word did you guess first?</Text>
+          <TextInput placeholder="type here" size="small" value={word} autoFocus
+            onChange={(event) => {
+              if (event.target.value.length <= 5) {
+                setWord(event.target.value.trim())
+              }
+            }}
+          />
+        </>
+      )
+    else if (turnCounter == 1) return (
+        <>
+          <Text margin="xsmall">Cool, and your second guess? </Text>
+          <TextInput autoFocus placeholder="type here" size="small" value={word2}
+            onChange={(event) => {
+              if (event.target.value.length <= 5) {
+                setWord2(event.target.value.trim())
+              }
+            }}
+          />
+        </>
+      )
+    else return (
+        <>
+          <Text margin="xsmall">Awesome, need another guess? </Text>
+          <TextInput autoFocus placeholder="type here" size="small" value={word3}
+            onChange={(event) => {
+              if (event.target.value.length <= 5) {
+                setWord3(event.target.value.trim())
+              }
+            }}
+          />
+        </>
+      )
+  }
 
+  const fetchWordle = () => {
+    var curWord:string = "";
+    var template:string = "";
+
+    switch (turnCounter) {
+      case 0: curWord = word; template=TL[bs[0]] + TL[bs[1]] + TL[bs[2]] + TL[bs[3]] + TL[bs[4]]; break;
+      case 1: curWord = word2; template=TL[bs[5]] + TL[bs[6]] + TL[bs[7]] + TL[bs[8]] + TL[bs[9]]; break;
+      case 2: curWord = word3; template=TL[bs[10]] + TL[bs[11]] + TL[bs[12]] + TL[bs[13]] + TL[bs[14]]; break;
+    }
+
+    console.log(turnCounter, curWord, curWord.length);
+    if (curWord.length === 5) {
       const data = JSON.stringify({
         template: template,
         guess: word,
         answers_left: answersLeft,
         allowed_left: allowedLeft,
       });
-
+      // 'https://damn-you-wordle-uykoh7fkza-uw.a.run.app/getword/'
       postRequest('http://localhost:8080/getword/', data)
         .then(result => {
           console.log(result);
@@ -51,61 +92,35 @@ export default function InitialGuess() {
           setBestWord(result.best_guess);
         })
         .catch((err) => console.log(err))
-    } else {
-      // TODO: Make this a state event
+      
+      setTurnCounter(turnCounter + 1);
+    } else { 
+      // TODO: Make this a state event 
     }
   }
 
-  const areaList = [
-    { name: 'box0', start: [0, 0], end: [1, 0] },
-    { name: 'box1', start: [1, 0], end: [2, 0] },
-    { name: 'box2', start: [2, 0], end: [3, 0] },
-    { name: 'box3', start: [3, 0], end: [4, 0] },
-    { name: 'box4', start: [4, 0], end: [4, 0] },
-    { name: 'box5', start: [0, 1], end: [1, 1] },
-    { name: 'box6', start: [1, 1], end: [2, 1] },
-    { name: 'box7', start: [2, 1], end: [3, 1] },
-    { name: 'box8', start: [3, 1], end: [4, 1] },
-    { name: 'box9', start: [4, 1], end: [4, 1] },
-    { name: 'box10', start: [0, 2], end: [1, 2] },
-    { name: 'box11', start: [1, 2], end: [2, 2] },
-    { name: 'box12', start: [2, 2], end: [3, 2] },
-    { name: 'box13', start: [3, 2], end: [4, 2] },
-    { name: 'box14', start: [4, 2], end: [4, 2] },
-  ]
+  const areaList = Object.values(bs).map((box, i) => (
+    { name: 'box'+i, start: [i%5, Math.floor(i/5)], end: [i%5, Math.floor(i/5)] }
+  ))
 
   return (
     <Box width='medium' height='medium'>
-      <Text margin="xsmall">Alright, what word did you guess first?</Text>
-      <TextInput
-        placeholder="type here"
-        size="small"
-        value={word}
-        onChange={(event) => {
-          if (event.target.value.length <= 5) {
-             setWord(event.target.value.trim())
-          }
-        }}
-      />
+      <TextInputBox />
       <Grid
-        margin='medium'
-        alignSelf='center'
+        margin='medium' gap="xsmall" alignSelf='center'
         rows={['xxsmall', 'xxsmall', 'xxsmall']}
         columns={['xxsmall', 'xxsmall', 'xxsmall', 'xxsmall', 'xxsmall']}
-        gap="xsmall"
         areas={areaList}
       >
-        {Object.values(boxState).map((box, i) => {
-          let displayWord:string = word.substring(i, i+1);
+        {Object.values(bs).map((box, i) => {
+          if (i < 5) var displayLetter:string = word.substring(i, i+1);
+          else if (i < 10) var displayLetter:string = word2.substring(i%5, i%5+1);
+          else var displayLetter:string = word3.substring(i%5, i%5+1);
 
-          if (5 < i && i < 10) {
-            displayWord = word2.substring(i%5, i%5+1);
-          } else {
-            displayWord = word3.substring(i%5, i%5+1);
-          }
           return (
-            <Box key={"box" + i} focusIndicator={false} gridArea={"box" + i} background={COLORS[box]} onClick={() => { boxState[i] = (box + 1) % 3; setBoxState({...boxState})}}>
-              <Text alignSelf='center' margin='xxxsmall' size='2xl'>{word.substring(i, i+1)}</Text>
+            <Box key={"box" + i} focusIndicator={false} gridArea={"box" + i} 
+                 background={COLORS[box]} onClick={() => { bs[i] = (box + 1) % 3; setBoxState({...bs})}}>
+              <Text alignSelf='center' margin='xxxsmall' size='2xl'>{displayLetter}</Text>
             </Box>
           )
           })
@@ -114,17 +129,9 @@ export default function InitialGuess() {
       <Box animation='pulse' gridArea='button'>
         <Button primary color='orange' label="Submit" alignSelf='center' onClick={fetchWordle}/>
       </Box>
-      {bestWord !== "" ? (
-        <Box>
-          <Tag
-            alignSelf='center'
-            name="Best next guess"
-            value={bestWord}
-          ></Tag>
-        </Box>
-        ) : (
-          <div></div>
-        )
+      {bestWord !== "" 
+        ? <Box><Tag alignSelf='center' name="Best next guess" value={bestWord} /></Box>
+        : <Box />
       }
     </Box>
   );

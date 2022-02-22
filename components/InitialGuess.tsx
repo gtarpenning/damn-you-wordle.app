@@ -1,17 +1,103 @@
-import React, { useState } from "react";
-import { Text, TextInput } from "grommet";
+import React from "react";
+import { Text, TextInput, Grid, Box, Button } from "grommet";
+
+
+const COLORS = ['light-5', 'yellow', 'green'];
+const TL = ['-', 'O', 'X'];
+
 
 export default function InitialGuess() {
-  const [value, setValue] = React.useState("");
+  const [word, setWord] = React.useState("");
+  const [bestWord, setBestWord] = React.useState("");
+  const [sessionID, setSessionID] = React.useState("");
+
+  const [boxState, setBoxState] = React.useState({
+    box1: 0,
+    box2: 0,
+    box3: 0,
+    box4: 0,
+    box5: 0,
+  });
+
+  async function postRequest(url='', data='') {
+    console.log("Posting:", data);
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data,
+      // mode: 'no-cors',
+    })
+
+    return res.json();
+  }
+
+  const fetchWordle = () => {
+    const template = TL[boxState.box1] + TL[boxState.box2] + TL[boxState.box3] + TL[boxState.box4] + TL[boxState.box5]
+
+    const data = JSON.stringify({
+      id: "",
+      sessionID: "",
+      template: template,
+      guess: word,
+    });
+
+    postRequest('http://localhost:8080/getword/', data)
+      .then(result => {
+        console.log(result);
+        setSessionID(result.sessionID); 
+        setBestWord(result['best_guesses'][0][0])
+      })
+      .catch((err) => console.log(err))
+  }
+
   return (
     <>
       <Text margin="xsmall">Alright, what word did you guess first?</Text>
       <TextInput
         placeholder="type here"
         size="small"
-        value={value}
-        onChange={(event) => setValue(event.target.value)} // TODO: Query the API for the word
+        value={word}
+        onChange={(event) => {if (event.target.value.length <= 5) { setWord(event.target.value)} }} // TODO: Query the API for the word
       />
+      <br></br>
+      <Grid
+        rows={['xxsmall', 'xxsmall']}
+        columns={['xxsmall', 'xxsmall', 'xxsmall', 'xxsmall', 'xxsmall']}
+        gap="medium"
+        areas={[
+          { name: 'box1', start: [0, 0], end: [1, 0] },
+          { name: 'box2', start: [1, 0], end: [2, 0] },
+          { name: 'box3', start: [2, 0], end: [3, 0] },
+          { name: 'box4', start: [3, 0], end: [4, 0] },
+          { name: 'box5', start: [4, 0], end: [4, 0] },
+          { name: 'button', start: [0, 1], end: [4, 1]}
+        ]}
+      >
+        <Box gridArea="box1" background={COLORS[boxState.box1]} onClick={() => { boxState.box1 = (boxState.box1 + 1) % 3; setBoxState({...boxState})}}/>
+        <Box gridArea="box2" background={COLORS[boxState.box2]} onClick={() => { boxState.box2 = (boxState.box2 + 1) % 3; setBoxState({...boxState})}}/>
+        <Box gridArea="box3" background={COLORS[boxState.box3]} onClick={() => { boxState.box3 = (boxState.box3 + 1) % 3; setBoxState({...boxState})}}/>
+        <Box gridArea="box4" background={COLORS[boxState.box4]} onClick={() => { boxState.box4 = (boxState.box4 + 1) % 3; setBoxState({...boxState})}}/>
+        <Box gridArea="box5" background={COLORS[boxState.box5]} onClick={() => { boxState.box5 = (boxState.box5 + 1) % 3; setBoxState({...boxState})}}/>
+        <Box gridArea='button'>
+          <Button primary label="Submit" alignSelf='center' onClick={fetchWordle}/>
+        </Box>
+      </Grid>
+      {bestWord != "" ? (
+        <Box
+          round
+          align="center"
+          pad="medium"
+          
+        >
+          {bestWord}
+        </Box>
+        ) : (
+          <div></div>
+        )
+      }
     </>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextInput, Grid, Box, Button } from "grommet";
+import { Text, TextInput, Grid, Box, Button, Tag } from "grommet";
 
 
 const COLORS = ['light-5', 'yellow', 'green'];
@@ -35,22 +35,26 @@ export default function InitialGuess() {
   }
 
   const fetchWordle = () => {
-    const template = TL[boxState.box1] + TL[boxState.box2] + TL[boxState.box3] + TL[boxState.box4] + TL[boxState.box5]
+    if (word.length === 5) {
+      const template = TL[boxState.box1] + TL[boxState.box2] + TL[boxState.box3] + TL[boxState.box4] + TL[boxState.box5]
 
-    const data = JSON.stringify({
-      id: "",
-      sessionID: "",
-      template: template,
-      guess: word,
-    });
+      const data = JSON.stringify({
+        id: "",
+        sessionID: "",
+        template: template,
+        guess: word,
+      });
 
-    postRequest('http://localhost:8080/getword/', data)
-      .then(result => {
-        console.log(result);
-        setSessionID(result.sessionID); 
-        setBestWord(result['best_guesses'][0][0])
-      })
-      .catch((err) => console.log(err))
+      postRequest('http://localhost:8080/getword/', data)
+        .then(result => {
+          console.log(result);
+          setSessionID(result.sessionID); 
+          setBestWord(result['best_guesses'][0][0])
+        })
+        .catch((err) => console.log(err))
+    } else {
+      // TODO: Make this a state event
+    }
   }
 
   return (
@@ -60,7 +64,11 @@ export default function InitialGuess() {
         placeholder="type here"
         size="small"
         value={word}
-        onChange={(event) => {if (event.target.value.length <= 5) { setWord(event.target.value)} }} // TODO: Query the API for the word
+        onChange={(event) => {
+          if (event.target.value.length <= 5) {
+             setWord(event.target.value.trim())
+          }
+        }}
       />
       <br></br>
       <Grid
@@ -85,14 +93,13 @@ export default function InitialGuess() {
           <Button primary label="Submit" alignSelf='center' onClick={fetchWordle}/>
         </Box>
       </Grid>
-      {bestWord != "" ? (
-        <Box
-          round
-          align="center"
-          pad="medium"
-          
-        >
-          {bestWord}
+      {bestWord !== "" ? (
+        <Box>
+          <Tag
+            alignSelf='center'
+            name="Best next guess"
+            value={bestWord}
+          ></Tag>
         </Box>
         ) : (
           <div></div>

@@ -7,7 +7,7 @@ const TL = ['-', 'O', 'X'];
 
 
 export default function InitialGuess() {
-  const [word, setWord] = React.useState("");
+  const [word, setWord] = React.useState("");  // TODO combine word state 
   const [word2, setWord2] = React.useState("");
   const [word3, setWord3] = React.useState("");
   const [bs, setBoxState] = React.useState(Array(15).fill(0));
@@ -85,7 +85,8 @@ export default function InitialGuess() {
       });
 
       // 'https://damn-you-wordle-uykoh7fkza-uw.a.run.app/getword/'
-      postRequest('http://localhost:8080/getword/', data)
+      // 'http://localhost:8080'
+      postRequest('https://damn-you-wordle-uykoh7fkza-uw.a.run.app/getword/', data)
         .then(result => {
           console.log(result);
           if (result.best_guess == "Word Not Found") {
